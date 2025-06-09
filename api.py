@@ -6,7 +6,6 @@ import json
 from collections import defaultdict
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 from sqlalchemy import create_engine, text
@@ -84,9 +83,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
-
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Initialize in-memory structures
 QueryDesk_AI_Learning = defaultdict(str)
@@ -229,7 +225,7 @@ def load_response_map():
             ]
         },
         "ride_cancellation": {
-            "keywords": ["ride cancelled", "bus cancelled", "cancellation"],
+            "keywords": ["ride cancelled", "bus cancelled"],
             "responses": [
                 "Sorry for the cancellation. A self-help link was emailed to rebook or refund: https://shop.flixbus.in/rebooking/login",
                 "I can process a full refund for the cancelled ride. Shall I proceed?"
@@ -767,7 +763,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 async def root():
@@ -860,4 +855,4 @@ async def view_statements():
 if __name__ == "__main__":
     import uvicorn
     check_data_refresh()
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
