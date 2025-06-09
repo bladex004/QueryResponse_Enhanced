@@ -1,0 +1,1 @@
+﻿from dotenv import load_dotenv; import os; load_dotenv(); print(os.getenv('DB_USERNAME')); print(os.getenv('DB_PASSWORD')); print(os.getenv('DB_HOST')); print(os.getenv('DB_PORT')); print(os.getenv('DB_NAME'))
