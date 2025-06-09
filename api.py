@@ -682,30 +682,31 @@ def generate_ai_response(query: str, intent: str, used_responses_set: set, db_st
     logger.debug(f"Fallback AI response: {response}")
     return response
 
-def load_training_data():
-    """Load training data from JSON file."""
-    global training_data, training_stats
-    try:
-        with open("training_data.json", "r") as f:
-            data = json.load(f)
-            training_data = [preprocess_text(str(stmt)) for stmt in data.get("statements", []) if stmt]
-            training_stats["training_data_size"] = len(training_data)
-            logger.info(f"Loaded {len(training_data)} statements from training_data.json")
-    except FileNotFoundError:
-        logger.warning("training_data.json not found, initializing with default statements")
-        training_data = [preprocess_text(stmt) for stmt in ["cancel ticket", "book ticket", "bus travel"]]
-        training_stats["training_data_size"] = len(training_data)
-        with open("training_data.json", "w") as f:
-            json.dump({"statements": ["cancel ticket", "book ticket", "bus travel"]}, f, indent=4)
-    except json.JSONDecodeError:
-        logger.error("Invalid JSON in training_data.json, resetting to default")
-        training_data = [preprocess_text(stmt) for stmt in ["cancel ticket", "book ticket", "bus travel"]]
-        training_stats["training_data_size"] = len(training_data)
-        with open("training_data.json", "w") as f:
-            json.dump({"statements": ["cancel ticket", "book ticket", "bus travel"]}, f, indent=4)
-    if training_data:
-        retrain_vectorizer()
+import json
+import os
+import logging
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+DEFAULT_STATEMENTS = [
+    {"query": "hello", "response": "Hi there!"},
+    # Add more defaults as needed
+]
+
+def load_training_data():
+    file_path = "training_data.json"
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, "r") as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error(f"Failed to load training_data.json: {e}")
+            return DEFAULT_STATEMENTS
+    else:
+        logger.warning("training_data.json not found, initializing with default statements")
+        return DEFAULT_STATEMENTS
+    
 def save_training_data():
     """Save training data to JSON file."""
     global training_stats
